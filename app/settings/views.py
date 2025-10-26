@@ -62,3 +62,22 @@ class ReviewViewSet(
         if product_id:
             return Review.objects.filter(product_id=product_id)
         return Review.objects.all()
+
+class ProductViewSet(viewsets.GenericViewSet,
+                     mixins.ListModelMixin,
+                     mixins.RetrieveModelMixin,
+                     mixins.CreateModelMixin,
+                     mixins.UpdateModelMixin,
+                     mixins.DestroyModelMixin):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+
+
+class ModelProductViewSet(viewsets.GenericViewSet,
+                          mixins.ListModelMixin,
+                          mixins.RetrieveModelMixin,
+                          mixins.CreateModelMixin,
+                          mixins.UpdateModelMixin,
+                          mixins.DestroyModelMixin):
+    queryset = ModelProduct.objects.all()
+    serializer_class = ModelProductSerializer
