@@ -9,6 +9,7 @@ class CategoryAdmin(admin.ModelAdmin):
 class ModelProductAdmin(admin.ModelAdmin):
     list_display = ['name']
 
+
 class ImageProductInline(admin.TabularInline):
     model = ImageProduct
     extra = 1

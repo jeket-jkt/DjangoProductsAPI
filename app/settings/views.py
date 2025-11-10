@@ -1,84 +1,56 @@
-from rest_framework import viewsets, mixins, filters
-from rest_framework.generics import ListAPIView
-from django.apps import apps
+from rest_framework.generics import ListAPIView, CreateAPIView, UpdateAPIView,\
+RetrieveAPIView, DestroyAPIView
+from rest_framework.viewsets import GenericViewSet
+from rest_framework import mixins, filters
+from django_filters.rest_framework import DjangoFilterBackend
+
 from app.settings.models import Category, ModelProduct, Product
-from app.settings.serializers import CategorySerializer, ModelProductSerializer, ProductSerializer
-from .serializers import serializers_dict, ReviewSerializer
-from .models import Review
+from app.settings.serilizers import CategorySerializer, ModelProductSerializer,\
+ProductSerializer
 from app.settings.pagination import StandartPagination
+from app.settings.filters import ProductFilter
 
-
-app_models = apps.get_app_config('settings').get_models()
-viewsets_dict = {}
-
-for model in app_models:
-    serializer_class = serializers_dict[model.__name__]
-    viewset_class = type(
-        f'{model.__name__}ViewSet',
-        (viewsets.ModelViewSet,),
-        {
-            'queryset': model.objects.all(),
-            'serializer_class': serializer_class
-        }
-    )
-    viewsets_dict[model.__name__] = viewset_class
-
-
-class CategoryViewSet(
-    mixins.ListModelMixin,
-    mixins.CreateModelMixin,
-    mixins.RetrieveModelMixin,
-    mixins.UpdateModelMixin,
-    mixins.DestroyModelMixin,
-    viewsets.GenericViewSet
-):
+class CategoryAPIView(ListAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    pagination_class = StandartPagination
 
+class CategoryCreateAPIView(CreateAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
 
-class ModelProductViewSet(
-    mixins.ListModelMixin,
-    mixins.CreateModelMixin,
-    mixins.RetrieveModelMixin,
-    mixins.UpdateModelMixin,
-    mixins.DestroyModelMixin,
-    viewsets.GenericViewSet
-):
+class CategoryUpdateAPIView(UpdateAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+
+class CategoryDetailAPIView(RetrieveAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+
+class CategoryDeleteAPIView(DestroyAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+
+class ModelProductAPI(GenericViewSet,
+                    mixins.ListModelMixin,
+                    mixins.CreateModelMixin,
+                    mixins.RetrieveModelMixin,
+                    mixins.UpdateModelMixin,
+                    mixins.DestroyModelMixin):
     queryset = ModelProduct.objects.all()
     serializer_class = ModelProductSerializer
     pagination_class = StandartPagination
 
-    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
-    search_fields = ['name', 'description']
-    ordering_fields = ['price', 'name']
-
-
-class ProductViewSet(
-    mixins.ListModelMixin,
-    mixins.CreateModelMixin,
-    mixins.RetrieveModelMixin,
-    mixins.UpdateModelMixin,
-    mixins.DestroyModelMixin,
-    viewsets.GenericViewSet
-):
+class ProductAPI(GenericViewSet,
+                mixins.ListModelMixin,
+                mixins.CreateModelMixin,
+                mixins.UpdateModelMixin,
+                mixins.RetrieveModelMixin,
+                mixins.DestroyModelMixin):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
     pagination_class = StandartPagination
 
-
-class ReviewViewSet(
-    mixins.ListModelMixin,
-    mixins.RetrieveModelMixin,
-    mixins.CreateModelMixin,
-    mixins.UpdateModelMixin,
-    mixins.DestroyModelMixin,
-    viewsets.GenericViewSet
-):
-    serializer_class = ReviewSerializer
-
-    def get_queryset(self):
-        product_id = self.kwargs.get("product_id")
-        if product_id:
-            return Review.objects.filter(product_id=product_id)
-        return Review.objects.all()
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_class = ProductFilter
+    search_fields = ['name', 'description', "category__name", "model__name", "user"]
+    ordering_fields = ['price', 'created_at']

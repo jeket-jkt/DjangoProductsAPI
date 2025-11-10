@@ -1,17 +1,3 @@
-# IDE
-.idea/
-.vscode/
-__pycache__/
-*.pyc
-
-# OS
-*.log
-*.DS_Store
-Thumbs.db
-
-# Virtual environments
 venv/
-env/
-
-# Datagrip / JetBrains
-DataGrip*/
+.env
+db.sqlite3
